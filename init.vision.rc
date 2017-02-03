@@ -4,27 +4,27 @@ on emmc
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
     mkdir /devlog 0700 root root
-#   devwait emmc@system
+    devwait emmc@system
     devwait /dev/block/mmcblk0p25
-#   exec /system/bin/e2fsck_recvy -p emmc@system
-#   mount ext3 emmc@system /system ro data=ordered
-    mount ext3 /dev/block/mmcblk0p25 /system ro data=ordered
-#   devwait emmc@userdata
+    exec /system/bin/e2fsck_recvy -p emmc@system
+    mount ext3 emmc@system /system rw data=ordered
+    mount ext3 /dev/block/mmcblk0p25 /system rw data=ordered
+    devwait emmc@userdata
     devwait /dev/block/mmcblk0p26
-#   exec /system/bin/e2fsck_recvy -p emmc@userdata
-#   mount ext3 emmc@userdata /data nosuid nodev data=ordered
+    exec /system/bin/e2fsck_recvy -p emmc@userdata
+    mount ext3 emmc@userdata /data nosuid nodev data=ordered
     exec /system/bin/e2fsck -p /dev/block/mmcblk0p26
     mount ext3 /dev/block/mmcblk0p26 /data nosuid nodev data=ordered
-#   devwait emmc@cache
+    devwait emmc@cache
     devwait /dev/block/mmcblk0p27
-#   exec /system/bin/e2fsck_recvy -p emmc@cache
-#   mount ext3 emmc@cache /cache nosuid nodev data=ordered
+    exec /system/bin/e2fsck_recvy -p emmc@cache
+    mount ext3 emmc@cache /cache nosuid nodev data=ordered
     exec /system/bin/e2fsck -p /dev/block/mmcblk0p27
     mount ext3 /dev/block/mmcblk0p27 /cache nosuid nodev data=ordered
-#   devwait emmc@devlog
+    devwait emmc@devlog
     devwait /dev/block/mmcblk0p28
-#   exec /system/bin/e2fsck_recvy -p emmc@devlog
-#   mount ext3 emmc@devlog /devlog nosuid nodev data=ordered
+    exec /system/bin/e2fsck_recvy -p emmc@devlog
+    mount ext3 emmc@devlog /devlog nosuid nodev data=ordered
     exec /system/bin/e2fsck -p /dev/block/mmcblk0p28
     mount ext3 /dev/block/mmcblk0p28 /devlog nosuid nodev data=ordered
 
@@ -72,7 +72,7 @@ on boot
     chmod 0660 /dev/radio_feedback
 
 # Load kineto_gan.ko while booting
-#    insmod /system/lib/modules/kineto_gan.ko
+insmod /system/lib/modules/kineto_gan.ko
 
 # Enable low memory killer to check file pages
     write /sys/module/lowmemorykiller/parameters/minfile 0,0,0,5120,5632,6144
@@ -85,14 +85,12 @@ service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
     -Dwext -ieth0 -c/data/misc/wifi/wpa_supplicant.conf
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
-#   user wifi
-#   group wifi inet keystore
+    user wifi
+    group wifi inet keystore
     socket wpa_eth0 dgram 660 wifi wifi
-    disabled
     oneshot
 
 service dhcpcd /system/bin/dhcpcd -ABKL eth0
-    disabled
     oneshot
 
 # compass/accelerometer daemon
@@ -102,42 +100,34 @@ service akmd /system/bin/akmd
 
 # bugreport is triggered by the KEY_VOLUMEUP and BTN_MOUSE keycodes
 service bugreport /system/bin/dumpstate -d -v -o /sdcard/bugreports/bugreport
-    disabled
     oneshot
     keycodes 115 272
 
-service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm \
+service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm
     --baudrate 3000000 --patchram /etc/firmware/bcm4329.hcd /dev/ttyHS0
     user bluetooth
     group bluetooth net_bt_admin
-    disabled
 
 
 
 service udhcpd /system/bin/udhcpd
-    disabled
     oneshot
 
 service netsharing_on /system/bin/netsharing net on
-    disabled
     oneshot
 
 service netsharing_off /system/bin/netsharing net off
-    disabled
     oneshot
 
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p13 /dev/block/mmcblk0p14
     user root
-    disabled
 
 service htc_ebdlogd /system/bin/htc_ebdlogd -s -k -P 7
     user root
-        disabled
     oneshot
 
 service htc_ebdlogd_rel /system/bin/htc_ebdlogd -s -k
     user root
-        disabled
     oneshot
 
 on property:ro.build.tags=test-keys
